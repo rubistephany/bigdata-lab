@@ -12,3 +12,4 @@ data:
     spark.eventLog.enabled           true
     spark.eventLog.dir               hdfs://hdfs-pv/shared/spark-logs
     spark.serializer                 org.apache.spark.serializer.KryoSerializer
+# Paso 4: Creacion del archivo de configuracion configmap-spark
