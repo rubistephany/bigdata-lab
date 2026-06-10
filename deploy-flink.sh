@@ -21,3 +21,4 @@ else
     echo "=== [ERROR] Fallo al levantar el pipeline de Flink ==="
     exit 1
 fi
+# Paso 5: Creacion del script de despliegue para Flink con compatibilidad JDK17
