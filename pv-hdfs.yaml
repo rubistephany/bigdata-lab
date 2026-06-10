@@ -24,3 +24,4 @@ spec:
   resources:
     requests:
       storage: 50Gi
+# Paso 4: Creacion del manifiesto de almacenamiento persistente pv-hdfs
