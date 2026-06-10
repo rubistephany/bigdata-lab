@@ -1,0 +1,18 @@
+services:
+  # El "Cerebro" del cluster (Master)
+  spark-master:
+    image: apache/spark:latest
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "9090:8080" # Panel de control web
+      - "7077:7077" # Conexión interna
+
+  # El "Músculo" que procesa los datos (Worker)
+  spark-worker:
+    image: apache/spark:latest
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    depends_on:
+      - spark-master
