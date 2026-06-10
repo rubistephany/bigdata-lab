@@ -41,3 +41,4 @@ EXPOSE 4040 8080
 
 # Comando final de ejecución para levantar el Worker de Spark
 CMD ["spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+# Paso 3: Correccion del Dockerfile con pautas de seguridad y versiones LTS
