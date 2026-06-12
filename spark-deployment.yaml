@@ -4,7 +4,7 @@ metadata:
   name: spark-worker
   namespace: datastream-bigdata
 spec:
-  replicas: 2
+  replicas: 2 # Define 2 nodos esclavos para el procesamiento distribuido de tareas
   selector:
     matchLabels:
       app: spark-worker
@@ -13,17 +13,38 @@ spec:
       labels:
         app: spark-worker
     spec:
+      initContainers:
+      # initContainers: Contenedor temporal que arranca como root para dar permisos 
+      # totales a la carpeta de trabajo, evitando bloqueos al usuario no-root 1001.
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "mkdir -p /opt/spark/work && chmod -R 777 /opt/spark/work"]
+        volumeMounts:
+        - name: work-dir
+          mountPath: /opt/spark/work
       containers:
       - name: spark-worker
         image: datastream/spark-worker:3.5.x-jdk17
-        imagePullPolicy: IfNotPresent
-        args: ["spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
-        envFrom:
-          - configMapRef:
-              name: spark-config
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "250m"
+        env:
+        # fieldRef: Extrae e inyecta la IP real asignada al Pod por Kubernetes. 
+        # Evita que el tráfico de datos se pierda y soluciona el bloqueo de recursos.
+        - name: SPARK_LOCAL_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: SPARK_PUBLIC_DNS
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        command: ["/opt/spark/bin/spark-class"]
+        # args: Registra el Worker ante el Master mediante una IP estática interna (ClusterIP) 
+        # para garantizar la conexión ante cualquier latencia del DNS.
+        args: ["org.apache.spark.deploy.worker.Worker", "--webui-port", "8081", "spark://10.96.118.169:7077"]
+        volumeMounts:
+        - name: work-dir
+          mountPath: /opt/spark/work
         ports:
-        - containerPort: 8080
+        - containerPort: 8081 # Consola web visual (UI) de cada Worker
+      volumes:
+      - name: work-dir
+        emptyDir: {} # Directorio temporal compartido entre contenedores del mismo Pod
