@@ -2,8 +2,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: spark-config
+  # namespace: Entorno virtual aislado para evitar colisiones con otras aplicaciones del clúster.
   namespace: datastream-bigdata
 data:
+  # SPARK_MASTER_HOST: Nombre fijo para que el DNS de Kubernetes lo resuelva dinámicamente sin usar IPs.
   SPARK_MASTER_HOST: "spark-master"
+  # SPARK_WORKER_CORES y MEMORY: Límites estrictos de CPU/RAM para evitar que Spark sature el nodo
+  # y Kubernetes cuelgue los contenedores por falta de memoria (OOMKilled).
   SPARK_WORKER_CORES: "2"
   SPARK_WORKER_MEMORY: "1g"
