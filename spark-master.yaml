@@ -13,13 +13,18 @@ spec:
       labels:
         app: spark-master
     spec:
+      # enableServiceLinks: Evita que Kubernetes inyecte variables automáticas 
+      # que colisionen con las variables internas y puertos de fábrica de Spark.
+      enableServiceLinks: false
       containers:
       - name: spark-master
         image: datastream/spark-worker:3.5.x-jdk17
+        # args: Inicia el proceso Java en modo Master. 0.0.0.0 permite escuchar peticiones 
+        # en cualquier interfaz de red del contenedor sin restricciones internas.
         args: ["spark-class", "org.apache.spark.deploy.master.Master", "--host", "0.0.0.0"]
         ports:
-        - containerPort: 7077
-        - containerPort: 8080
+        - containerPort: 7077 # Puerto de comunicación interna y metadatos
+        - containerPort: 8080 # Puerto HTTP para la consola web visual (Spark UI)
 ---
 apiVersion: v1
 kind: Service
@@ -30,6 +35,8 @@ spec:
   selector:
     app: spark-master
   ports:
+    # Service: Actúa como balanceador con IP fija (spark-master) para redirigir 
+    # el tráfico de forma persistente aunque el Pod sea recreado.
     - name: spark-master
       protocol: TCP
       port: 7077
