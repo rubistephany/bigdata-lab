@@ -4,14 +4,18 @@ metadata:
   name: spark-master
   namespace: datastream-bigdata
 spec:
+  # selector: Actúa como imán de red. Busca contenedores con la etiqueta exacta 
+  # 'app: spark-master' para redirigirles el tráfico. Un error aquí incomunica el clúster.
   selector:
     app: spark-master
   ports:
+    # Separar el Service en este archivo independiente permite modificar puertos 
+    # o estrategias de red sin necesidad de tocar ni reiniciar el Deployment del Master.
     - protocol: TCP
       port: 7077
       targetPort: 7077
-      name: spark-master
+      name: spark-master # Canal de comunicación interna y metadatos
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      name: spark-ui
+      name: spark-ui     # Acceso web a la consola visual de Spark
