@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-read
+rules:
+- apiGroups: [""]
+  # resources y verbs: Permite a Prometheus mapear y vigilar la infraestructura en tiempo real. 
+  # Sin esto, el aislamiento nativo de Kubernetes bloquea el escaneo con un error '403 Forbidden'.
+  resources: ["pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-read-binding
+subjects:
+  # ServiceAccount: Vincula la identidad digital del Pod de Prometheus (en el namespace 'monitoring') 
+  # con el rol de lectura superior. Funciona como una credencial autorizada para cruzar fronteras entre namespaces.
+- kind: ServiceAccount
+  name: default
+  namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: prometheus-read
+  apiGroup: rbac.authorization.k8s.io
