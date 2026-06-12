@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-monitor-service
+  namespace: datastream-bigdata
+  labels:
+    # label: Vincula este servicio de monitoreo al ecosistema del nodo maestro
+    app: spark-master
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    # name: metrics: Estándar de ingeniería para que las herramientas de auditoría 
+    # identifiquen este canal como extracción de datos puros de rendimiento y no como web.
+    name: metrics
+  # selector: Conecta de forma transparente con el Pod del Master en producción 
+  # basándose en sus etiquetas, sin necesidad de reiniciar el clúster.
+  selector:
+    app: spark-master
